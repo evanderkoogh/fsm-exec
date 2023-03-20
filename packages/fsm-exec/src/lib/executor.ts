@@ -49,6 +49,10 @@ export type ExecuteResult<S extends State, I extends Input, O extends Output> =
 	| ExecuteSuccessResult<S, O>
 	| ExecuteFailedResult<S, I>
 
+export interface ExecuteOptions {
+	wait?: boolean
+}
+
 export class Executor<S extends State = State, I extends Input = Input, O extends Output = Output> {
 	readonly fsm: FiniteStateMachine<S, I, O>
 	private state_: S
@@ -92,12 +96,16 @@ export class Executor<S extends State = State, I extends Input = Input, O extend
 		return { state, output, promise }
 	}
 
-	public async execute(input: I): Promise<ExecuteResult<S, I, O>> {
+	public async execute(input: I, opts?: ExecuteOptions): Promise<ExecuteResult<S, I, O>> {
 		const old_state = this.state
 		try {
-			const { state, output, promise: _promise } = this._execute(input)
-			//TODO: check for option to await the promise
-			return { state, output }
+			const { state, output, promise } = this._execute(input)
+			if (opts && opts.wait) {
+				await promise
+				return { state: this.state }
+			} else {
+				return { state, output }
+			}
 		} catch (err) {
 			const log = this.fsm.onError || console.log
 			await log(err)
