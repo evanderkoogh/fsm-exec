@@ -1,0 +1,33 @@
+lockfileVersion: 5.4
+
+specifiers:
+  '@cloudflare/workers-types': ^4.20230307.0
+  '@microlabs/fsm': workspace:*
+  '@microlabs/fsm-exec': workspace:*
+  path-to-regexp: ^6.2.1
+  typescript: ^4.9.5
+
+dependencies:
+  '@cloudflare/workers-types': 4.20230307.0
+  '@microlabs/fsm': link:../fsm
+  '@microlabs/fsm-exec': link:../fsm-exec
+  path-to-regexp: 6.2.1
+
+devDependencies:
+  typescript: 4.9.5
+
+packages:
+
+  /@cloudflare/workers-types/4.20230307.0:
+    resolution: {integrity: sha512-Go968aDDcqONHQcUdgIiPRkPdT4QTzD0ecHJsI1u7ZiHPMOoZn+Dy7hYsdUJ5ldX9wTZDrICBM1rDKTRaDUitg==}
+    dev: false
+
+  /path-to-regexp/6.2.1:
+    resolution: {integrity: sha512-JLyh7xT1kizaEvcaXOQwOc2/Yhw6KZOvPf1S8401UyLk86CU79LN3vl7ztXGm/pZ+YjoyAJ4rxmHwbkBXJX+yw==}
+    dev: false
+
+  /typescript/4.9.5:
+    resolution: {integrity: sha512-1FXk9E2Hm+QzZQ7z+McJiHL4NW1F2EzMu9Nq9i3zAaGqibafqYwCVU6WyWAuyQRRzOlxou8xZSyXLEN8oKj24g==}
+    engines: {node: '>=4.2.0'}
+    hasBin: true
+    dev: true

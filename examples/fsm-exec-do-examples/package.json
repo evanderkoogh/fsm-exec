@@ -1,0 +1,17 @@
+{
+	"name": "@microlabs/fsm-exec-do-examples",
+	"version": "0.0.1",
+	"type": "module",
+	"scripts": {
+		"build": "tsc"
+	},
+	"dependencies": {
+		"@microlabs/fsm-exec-do": "workspace:*",
+		"@microlabs/fsm-examples": "workspace:*"
+	},
+	"devDependencies": {
+		"@cloudflare/workers-types": "^4.20230307.0",
+		"typescript": "^4.9.5"
+	},
+	"private": true
+}

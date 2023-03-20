@@ -1,0 +1,12 @@
+name = "fsm-exec-do-examples"
+main = "src/index.ts"
+compatibility_date = "2023-03-20"
+
+[durable_objects]
+bindings = [
+  { name = "FSM_DO", class_name = "TestFsmDO" }
+]
+
+[[migrations]]
+tag = "v1" # Should be unique for each entry
+new_classes = ["TestFsmDO"]
