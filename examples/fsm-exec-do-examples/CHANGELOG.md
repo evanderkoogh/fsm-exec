@@ -1,5 +1,11 @@
 # @microlabs/fsm-exec-do-examples
 
+## 0.0.3
+
+### Patch Changes
+
+- @microlabs/fsm-exec-do@0.1.1
+
 ## 0.0.2
 
 ### Patch Changes
