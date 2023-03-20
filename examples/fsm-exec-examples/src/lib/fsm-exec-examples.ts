@@ -1,12 +1,15 @@
 import { simpleFsm as fsm } from '@microlabs/fsm-examples'
-import { Executor, InMemoryScheduler, StateUpdateListener } from '@microlabs/fsm-exec'
+import { Executor, InMemoryScheduler, OutputListener, StateUpdateListener } from '@microlabs/fsm-exec'
 
 const run = async () => {
 	const scheduler = new InMemoryScheduler(fsm)
-	const listener: StateUpdateListener<number, string> = (msg) => {
-		console.log({ msg })
+	const updateListener: StateUpdateListener<number, string> = (msg) => {
+		console.log('Update:', { msg })
 	}
-	const executor = new Executor(fsm, scheduler, { listener, state: 2 })
+	const outputListener: OutputListener<string> = (msg) => {
+		console.log('Update:', { msg })
+	}
+	const executor = new Executor(fsm, scheduler, { outputListener, updateListener, state: 2 })
 	const result = await executor.execute('4')
 	console.log({ result })
 }

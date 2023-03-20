@@ -1,7 +1,7 @@
 lockfileVersion: 5.4
 
 specifiers:
-  '@microlabs/fsm': workspace:../fsm
+  '@microlabs/fsm': workspace:*
   typescript: ^4.9.5
 
 dependencies:

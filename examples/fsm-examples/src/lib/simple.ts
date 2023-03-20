@@ -1,6 +1,6 @@
 import { FiniteStateMachine } from '@microlabs/fsm'
 
-const simpleFsm: FiniteStateMachine<number, string> = {
+const simpleFsm: FiniteStateMachine<number, string, string> = {
 	actions: {
 		double: (arg: number) => {
 			return arg.toString()
@@ -18,7 +18,7 @@ const simpleFsm: FiniteStateMachine<number, string> = {
 		const i = parseInt(input)
 		state = state + i
 		const invocations = state > 10 ? [] : [{ actionId: 'triple', argument: state }]
-		return { state, invocations }
+		return { state, invocations, output: state.toFixed(2) }
 	},
 	async onError(err) {
 		console.log('ERROR!')

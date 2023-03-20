@@ -16,7 +16,7 @@ export abstract class FSM_DO_Base<S extends State, I extends Input, E extends DO
 		this.env = env
 		this.fsm = fsm
 		this.storage = state.storage
-		const listener: StateUpdateListener<S, I> = async (msg) => {
+		const updateListener: StateUpdateListener<S, I> = async (msg) => {
 			console.log({ msg })
 			this.storage.put('root::state', msg.newState)
 		}
@@ -24,7 +24,7 @@ export abstract class FSM_DO_Base<S extends State, I extends Input, E extends DO
 			let state = await this.storage.get<S | undefined>('root::state')
 			const scheduler = await DO_Scheduler.getInstance(this.storage, fsm)
 			this.scheduler = scheduler
-			this.executor = new Executor(this.fsm, scheduler, { listener, state })
+			this.executor = new Executor(this.fsm, scheduler, { updateListener, state })
 		})
 	}
 
