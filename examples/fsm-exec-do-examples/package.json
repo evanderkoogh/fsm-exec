@@ -1,7 +1,7 @@
 {
 	"name": "@microlabs/fsm-exec-do-examples",
 	"version": "0.0.3",
-	"type": "module",
+	"type": "commonjs",
 	"scripts": {
 		"build": "tsc"
 	},

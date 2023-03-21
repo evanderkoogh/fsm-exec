@@ -1,8 +1,8 @@
 {
 	"name": "@microlabs/fsm-exec-do",
 	"version": "0.1.1",
-	"type": "module",
-	"main": "./dist/index.ts",
+	"type": "commonjs",
+	"main": "./dist/index.js",
 	"types": "./dist/index.d.ts",
 	"scripts": {
 		"build": "tsc"
