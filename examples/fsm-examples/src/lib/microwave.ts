@@ -63,6 +63,8 @@ const handleStopped = (state: State, input: Input): Results<State, Input, Output
 		return { state: { ...state, powerLevel } }
 	} else if (input === 'start') {
 		return handleStart(state, input)
+	} else if (input === 'stop') {
+		return { state: initialState }
 	} else {
 		return { state, output: 'BEEP' }
 	}
@@ -70,7 +72,7 @@ const handleStopped = (state: State, input: Input): Results<State, Input, Output
 
 const handlePaused = (state: State, input: Input): Results<State, Input, Output> => {
 	if (input === 'stop') {
-		return { state: initialState }
+		return { state: { ...state, mode: 'STOPPED' } }
 	} else if (input === 'start') {
 		return handleStart(state, input)
 	} else {
