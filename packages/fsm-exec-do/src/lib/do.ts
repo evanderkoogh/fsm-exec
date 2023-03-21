@@ -1,18 +1,20 @@
 import { match } from 'path-to-regexp'
 
-import { FiniteStateMachine, Input, State } from '@microlabs/fsm'
-import { Executor, StateUpdateListener } from '@microlabs/fsm-exec'
+import { FiniteStateMachine, Input, Output, State } from '@microlabs/fsm'
+import { ExecuteResult, Executor, StateUpdateListener } from '@microlabs/fsm-exec'
 import { DO_Scheduler } from './scheduler'
 
 type DO_Env = Record<string, any>
 
-export abstract class FSM_DO_Base<S extends State, I extends Input, E extends DO_Env> implements DurableObject {
+export abstract class FSM_DO_Base<S extends State, I extends Input, O extends Output, E extends DO_Env>
+	implements DurableObject
+{
 	protected env: E
-	private executor?: Executor<S, I>
-	protected fsm: FiniteStateMachine<S, I>
+	private executor?: Executor<S, I, O>
+	protected fsm: FiniteStateMachine<S, I, O>
 	private scheduler?: DO_Scheduler
 	protected storage: DurableObjectStorage
-	constructor(state: DurableObjectState, env: E, fsm: FiniteStateMachine<S, I>) {
+	constructor(state: DurableObjectState, env: E, fsm: FiniteStateMachine<S, I, O>) {
 		this.env = env
 		this.fsm = fsm
 		this.storage = state.storage
@@ -36,7 +38,7 @@ export abstract class FSM_DO_Base<S extends State, I extends Input, E extends DO
 		}
 	}
 
-	async execute(input: I): Promise<S> {
+	async execute(input: I): Promise<ExecuteResult<S, I, O>> {
 		if (this.executor) {
 			return this.executor.execute(input)
 		} else {
@@ -59,10 +61,10 @@ interface ExecutePayload<I extends Input> {
 	input: I
 }
 
-export function createFSM_DO<S extends State, I extends Input, Env extends DO_Env = any>(
-	fsm: FiniteStateMachine<S, I>
+export function createFSM_DO<S extends State, I extends Input, O extends Output, Env extends DO_Env = any>(
+	fsm: FiniteStateMachine<S, I, O>
 ): DO_class {
-	return class FSMDurableObject extends FSM_DO_Base<S, I, Env> {
+	return class FSMDurableObject extends FSM_DO_Base<S, I, O, Env> {
 		constructor(state: DurableObjectState, env: Env) {
 			super(state, env, fsm)
 		}
