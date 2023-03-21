@@ -7,7 +7,7 @@ export type Action<I> = (arg: any) => PromiseOr<I | void>
 
 export interface ActionInvocation {
 	actionId: string
-	argument: any
+	argument?: any
 	timeoutInMs?: number
 }
 
