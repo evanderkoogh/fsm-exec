@@ -1,13 +1,12 @@
 # Finite State Machine Execution Engine
 
-- [Finite State Machine Execution Engine](#finite-state-machine-execution-engine)
-  - [Introduction to Finite State Machines](#introduction-to-finite-state-machines)
-  - [Getting started](#getting-started)
-    - [Creating a Finite State Machine](#creating-a-finite-state-machine)
-    - [Create an Executor](#create-an-executor)
-    - [Subscribing to Updates and Output](#subscribing-to-updates-and-output)
-    - [Deploying to production](#deploying-to-production)
-  - [TODOs](#todos)
+- [Introduction to Finite State Machines](#introduction-to-finite-state-machines)
+- [Getting started](#getting-started)
+  - [Creating a Finite State Machine](#creating-a-finite-state-machine)
+  - [Create an Executor](#create-an-executor)
+  - [Subscribing to Updates and Output](#subscribing-to-updates-and-output)
+  - [Deploying to production](#deploying-to-production)
+- [TODOs](#todos)
 
 ## Introduction to Finite State Machines
 
