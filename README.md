@@ -80,6 +80,9 @@ executor.execute('start')
 
 ### Deploying to production
 
+> **Warning**
+> Do not do this yet for anything critical as the library is still very much in an alpha-state.
+
 The biggest challenge with hosting state machines in production is that you while a state machine itself is safe to be called concurrently, it does mean that there can only ever be one state machine running at any given time for every unique state.
 
 Fortunately Cloudflare's Durable Objects are a perfect match for this, because they guarantee that for every unique ID, there will only ever be one Javascript event loop running. Exactly what you need for a Finite State Machine execution engine.
