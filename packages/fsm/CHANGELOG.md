@@ -1,5 +1,11 @@
 # @microlabs/fsm
 
+## 0.3.0
+
+### Minor Changes
+
+- Moved error handling from the FSM to the exec package.
+
 ## 0.2.0
 
 ### Minor Changes

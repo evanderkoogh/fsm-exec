@@ -42,8 +42,6 @@ export interface FiniteStateMachine<S extends State = State, I extends Input = I
 	actions?: Record<string, Action<I>>
 	fn(state: S, input: I): Results<S, I, O>
 	initialState: S
-	onExecutionError?(state: S, input: I, error: any): PromiseOr<void>
-	onInvocationError?(actionId: string, argument: any, error: any): PromiseOr<void>
 }
 
 const TEN_MINUTES = 10 * 60 * 1000

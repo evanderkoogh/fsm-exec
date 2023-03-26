@@ -1,11 +1,11 @@
-import { Input, microwave, Output, State } from '@microlabs/fsm-examples'
-import { Executor, InMemoryScheduler, OutputListener, StateUpdateListener } from '@microlabs/fsm-exec'
+import { microwave } from '@microlabs/fsm-examples'
+import { Executor, InMemoryScheduler, OutputListener, UpdateListener } from '@microlabs/fsm-exec'
 
 const scheduler = new InMemoryScheduler(microwave)
-const updateListener: StateUpdateListener<State, Input> = (msg) => {
+const updateListener: UpdateListener = (msg) => {
 	console.log('Update:', { msg })
 }
-const outputListener: OutputListener<Output> = (msg) => {
+const outputListener: OutputListener = (msg) => {
 	console.log('Output:', { msg })
 }
 const executor = new Executor(microwave, scheduler, { outputListener, updateListener })

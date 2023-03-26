@@ -1,17 +1,17 @@
 import { State, FiniteStateMachine, Input } from '@microlabs/fsm'
 import { Effects, EffectsScheduler, Executor } from './executor'
 
-export class InMemoryScheduler<S extends State, I extends Input> implements EffectsScheduler<S, I> {
-	private executor?: Executor<S, I>
+export class InMemoryScheduler<S extends State, I extends Input> implements EffectsScheduler {
+	private executor?: Executor<S>
 	private timeoutId: any
 
 	constructor(private readonly fsm: FiniteStateMachine<S, I>) {}
 
-	setExecutor(executor: Executor<S, I>): void {
+	setExecutor(executor: Executor<S>): void {
 		this.executor = executor
 	}
 
-	async schedule(effects: Effects<I>) {
+	async schedule(effects: Effects) {
 		const { timer, invocations } = effects
 
 		clearTimeout(this.timeoutId)

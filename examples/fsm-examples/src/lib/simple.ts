@@ -20,14 +20,6 @@ const simpleFsm: FiniteStateMachine<number, string, string> = {
 		const invocations = state > 10 ? [] : [{ actionId: 'triple', argument: state }]
 		return { state, invocations, output: state.toFixed(2) }
 	},
-	onExecutionError(state, input, error) {
-		console.log('ERROR while executing state machine:')
-		console.log({ state, input, error })
-	},
-	onInvocationError(actionId, argument, error) {
-		console.log('ERROR while executing state machine:')
-		console.log({ actionId, argument, error })
-	},
 }
 
 export { simpleFsm }

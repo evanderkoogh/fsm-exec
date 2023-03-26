@@ -1,36 +1,36 @@
 import { match } from 'path-to-regexp'
 
 import { FiniteStateMachine, Input, Output, State } from '@microlabs/fsm'
-import { ExecuteResult, Executor, StateUpdateListener } from '@microlabs/fsm-exec'
+import { ExecuteResult, Executor, UpdateListener, isExecutionSuccessMessage } from '@microlabs/fsm-exec'
 import { DO_Scheduler } from './scheduler'
 
 type DO_Env = Record<string, any>
 
-export abstract class FSM_DO_Base<S extends State, I extends Input, O extends Output, E extends DO_Env>
-	implements DurableObject
-{
+export abstract class FSM_DO_Base<E extends DO_Env> implements DurableObject {
 	protected env: E
-	private executor?: Executor<S, I, O>
-	protected fsm: FiniteStateMachine<S, I, O>
+	private executor?: Executor<State>
+	protected fsm: FiniteStateMachine
 	private scheduler?: DO_Scheduler
 	protected storage: DurableObjectStorage
-	constructor(state: DurableObjectState, env: E, fsm: FiniteStateMachine<S, I, O>) {
+	constructor(state: DurableObjectState, env: E, fsm: FiniteStateMachine) {
 		this.env = env
 		this.fsm = fsm
 		this.storage = state.storage
-		const updateListener: StateUpdateListener<S, I> = async (msg) => {
+		const updateListener: UpdateListener = async (msg) => {
 			console.log({ msg })
-			this.storage.put('root::state', msg.newState)
+			if (isExecutionSuccessMessage(msg)) {
+				this.storage.put('root::state', msg.newState)
+			}
 		}
 		state.blockConcurrencyWhile(async () => {
-			let state = await this.storage.get<S | undefined>('root::state')
+			let state = await this.storage.get<State | undefined>('root::state')
 			const scheduler = await DO_Scheduler.getInstance(this.storage, fsm)
 			this.scheduler = scheduler
 			this.executor = new Executor(this.fsm, scheduler, { updateListener, state })
 		})
 	}
 
-	get state(): S {
+	get state(): State {
 		if (this.executor) {
 			return this.executor.state
 		} else {
@@ -38,7 +38,7 @@ export abstract class FSM_DO_Base<S extends State, I extends Input, O extends Ou
 		}
 	}
 
-	async execute(input: I): Promise<ExecuteResult<S, I, O>> {
+	execute(input: Input): ExecuteResult {
 		if (this.executor) {
 			return this.executor.execute(input)
 		} else {
@@ -64,7 +64,7 @@ interface ExecutePayload<I extends Input> {
 export function createFSM_DO<S extends State, I extends Input, O extends Output, Env extends DO_Env = any>(
 	fsm: FiniteStateMachine<S, I, O>
 ): DO_class {
-	return class FSMDurableObject extends FSM_DO_Base<S, I, O, Env> {
+	return class FSMDurableObject extends FSM_DO_Base<Env> {
 		constructor(state: DurableObjectState, env: Env) {
 			super(state, env, fsm)
 		}

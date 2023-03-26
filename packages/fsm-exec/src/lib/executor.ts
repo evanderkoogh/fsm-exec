@@ -1,68 +1,82 @@
-import { State, Input, Output, Timer, ActionInvocation, FiniteStateMachine } from '@microlabs/fsm'
+import { State, Input, Output, Timer, ActionInvocation, FiniteStateMachine, Results } from '@microlabs/fsm'
 
 type OrPromise<T> = T | Promise<T>
 
-interface StateUpdatedMessage<S extends State, I extends Input> {
-	input: I
-	oldState: S
-	newState: S
-}
-
-export type StateUpdateListener<S extends State, I extends Input> = (msg: StateUpdatedMessage<S, I>) => OrPromise<void>
-
-export type OutputListener<O extends Output> = (msg: O) => OrPromise<void>
-
-export interface Effects<I extends Input> {
-	timer?: Timer<I>
+export interface ExecutionSuccessMessage {
+	type: 'ExecutionSuccess'
+	isError: false
+	oldState: State
+	input: Input
+	newState: State
+	output?: Output
+	timer?: Timer<Input>
 	invocations?: ActionInvocation[]
 }
 
-export interface EffectsScheduler<S extends State, I extends Input> {
-	setExecutor(executor: Executor<S, I, any>): void
-	schedule(effects: Effects<I>): Promise<void>
+export function isExecutionSuccessMessage(msg: UpdateMessage): msg is ExecutionSuccessMessage {
+	return msg.type === 'ExecutionSuccess'
 }
 
-interface ExecutorOptions<S extends State, I extends Input, O extends Output> {
-	updateListener?: StateUpdateListener<S, I>
-	outputListener?: OutputListener<O>
+export interface ExecutionErrorMessage {
+	type: 'ExecutionError'
+	isError: true
+	error: any
+	oldState: State
+	input: Input
+}
+
+export type UpdateMessage = ExecutionSuccessMessage | ExecutionErrorMessage
+
+export type ErrorMessage = ExecutionErrorMessage
+
+export type UpdateListener = (msg: UpdateMessage) => OrPromise<void>
+
+export type OutputListener<O extends Output = Output> = (msg: O) => OrPromise<void>
+
+export type ErrorListener = (msg: ErrorMessage) => OrPromise<void>
+
+export interface Effects {
+	timer?: Timer<Input>
+	invocations?: ActionInvocation[]
+}
+
+export interface EffectsScheduler {
+	setExecutor(executor: Executor<State>): void
+	schedule(effects: Effects): Promise<void>
+}
+
+interface ExecutorOptions<S extends State> {
+	errorListener?: ErrorListener
+	updateListener?: UpdateListener
+	outputListener?: OutputListener
 	state?: S
 }
 
-export interface ExecuteSuccessResult<S extends State, O extends Output> {
-	state: S
-	output?: O
+export interface ExecuteSuccessResult {
+	state: State
+	output?: Output
 }
 
-export interface ExecuteFailedResult<S extends State, I extends Input> {
+export interface ExecuteFailedResult {
 	error: any
-	state: S
-	input: I
+	state: State
+	input: Input
 }
 
-export interface _ExecuteResult<S extends State, O extends Output> {
-	state: S
-	output?: O
-	promise: Promise<unknown>
-}
+export type ExecuteResult = ExecuteSuccessResult | ExecuteFailedResult
 
-export type ExecuteResult<S extends State, I extends Input, O extends Output> =
-	| ExecuteSuccessResult<S, O>
-	| ExecuteFailedResult<S, I>
-
-export interface ExecuteOptions {
-	wait?: boolean
-}
-
-export class Executor<S extends State = State, I extends Input = Input, O extends Output = Output> {
-	readonly fsm: FiniteStateMachine<S, I, O>
+export class Executor<S extends State> {
+	readonly fsm: FiniteStateMachine<S>
 	private state_: S
-	private scheduler: EffectsScheduler<S, I>
-	private outputListener?: OutputListener<O>
-	private updateListener?: StateUpdateListener<S, I>
-	constructor(fsm: FiniteStateMachine<S, I, O>, scheduler: EffectsScheduler<S, I>, opts?: ExecutorOptions<S, I, O>) {
+	private scheduler: EffectsScheduler
+	private errorListener?: ErrorListener
+	private outputListener?: OutputListener
+	private updateListener?: UpdateListener
+	constructor(fsm: FiniteStateMachine<S>, scheduler: EffectsScheduler, opts?: ExecutorOptions<S>) {
 		this.fsm = fsm
 		this.scheduler = scheduler
 		this.scheduler.setExecutor(this)
+		this.errorListener = opts?.errorListener
 		this.outputListener = opts?.outputListener
 		this.updateListener = opts?.updateListener
 		this.state_ = opts?.state ? opts.state : fsm.initialState
@@ -72,44 +86,53 @@ export class Executor<S extends State = State, I extends Input = Input, O extend
 		return this.state_
 	}
 
-	private notifyUpdate(input: I, oldState: S, newState: S) {
+	private notifySuccess(oldState: S, input: Input, results: Results<State, Input, Output>) {
+		if (results.output && this.outputListener) {
+			this.outputListener(results.output)
+		}
+
 		if (this.updateListener) {
-			//TODO: do deep compare
-			const update = {
-				input,
+			const msg: ExecutionSuccessMessage = {
+				type: 'ExecutionSuccess',
+				isError: false,
 				oldState,
-				newState,
-			}
-			this.updateListener(update)
+				input,
+				newState: results.state,
+				output: results.output,
+				timer: results.timer,
+				invocations: results.invocations,
+			} as const
+			this.updateListener(msg)
 		}
 	}
 
-	private _execute(input: I): _ExecuteResult<S, O> {
-		const { state, invocations, output, timer } = this.fsm.fn(this.state, input)
-		const oldState = this.state_
-		this.state_ = state
-		this.notifyUpdate(input, oldState, state)
-		if (output && this.outputListener) {
-			this.outputListener(output)
+	private notifyFailure(error: any, oldState: State, input: Input) {
+		const msg: ExecutionErrorMessage = {
+			type: 'ExecutionError',
+			isError: true,
+			error,
+			oldState,
+			input,
+		} as const
+		if (this.updateListener) {
+			this.updateListener(msg)
 		}
-		const promise = this.scheduler.schedule({ invocations, timer })
-		return { state, output, promise }
+		if (this.errorListener) {
+			this.errorListener(msg)
+		}
 	}
 
-	public async execute(input: I, opts?: ExecuteOptions): Promise<ExecuteResult<S, I, O>> {
-		const old_state = this.state
+	public execute(input: Input): ExecuteResult {
+		const oldState = this.state
 		try {
-			const { state, output, promise } = this._execute(input)
-			if (opts && opts.wait) {
-				await promise
-				return { state: this.state }
-			} else {
-				return { state, output }
-			}
-		} catch (err) {
-			const log = this.fsm.onExecutionError || console.log
-			await log(old_state, input, err)
-			return { error: err, state: old_state, input }
+			const results = this.fsm.fn(this.state, input)
+			this.notifySuccess(oldState, input, results)
+			const { state, invocations, output, timer } = results
+			this.scheduler.schedule({ invocations, timer })
+			return { state, output }
+		} catch (error) {
+			this.notifyFailure(error, oldState, input)
+			return { error, state: oldState, input }
 		}
 	}
 }

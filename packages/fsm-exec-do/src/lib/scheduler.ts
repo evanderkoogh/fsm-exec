@@ -49,12 +49,12 @@ class EffectCache {
 	}
 }
 
-export class DO_Scheduler implements EffectsScheduler<State, Input> {
+export class DO_Scheduler implements EffectsScheduler {
 	private currentAlarmTime: number | undefined
 	private readonly effects: EffectCache
 	private readonly runningPromises: Map<string, AbortController> = new Map()
 	private readonly storage: DurableObjectStorage
-	private executor?: Executor<State, Input>
+	private executor?: Executor<State>
 
 	private constructor(storage: DurableObjectStorage, effects: EffectCache) {
 		this.storage = storage
@@ -73,7 +73,7 @@ export class DO_Scheduler implements EffectsScheduler<State, Input> {
 		// await this.reconcile()
 	}
 
-	setExecutor(executor: Executor<any, any>): void {
+	setExecutor(executor: Executor<State>): void {
 		this.executor = executor
 	}
 
@@ -147,7 +147,7 @@ export class DO_Scheduler implements EffectsScheduler<State, Input> {
 		}
 	}
 
-	schedule(effects: Effects<any>): Promise<void> {
+	schedule(effects: Effects): Promise<void> {
 		console.log('scheduling')
 		if (effects.timer) {
 			const timeoutEpoch = Date.now() + effects.timer.delay

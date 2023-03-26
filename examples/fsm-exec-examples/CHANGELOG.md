@@ -1,5 +1,18 @@
 # @microlabs/fsm-exec-examples
 
+## 0.2.0
+
+### Minor Changes
+
+- Moved error handling from the FSM to the exec package.
+
+### Patch Changes
+
+- Updated dependencies
+  - @microlabs/fsm-examples@0.4.0
+  - @microlabs/fsm-exec@0.4.0
+  - @microlabs/fsm@0.3.0
+
 ## 0.1.3
 
 ### Patch Changes
