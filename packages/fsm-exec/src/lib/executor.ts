@@ -107,8 +107,8 @@ export class Executor<S extends State = State, I extends Input = Input, O extend
 				return { state, output }
 			}
 		} catch (err) {
-			const log = this.fsm.onError || console.log
-			await log(err)
+			const log = this.fsm.onExecutionError || console.log
+			await log(old_state, input, err)
 			return { error: err, state: old_state, input }
 		}
 	}
