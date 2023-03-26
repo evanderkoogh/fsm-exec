@@ -2,7 +2,7 @@ export type Input = string | number | object
 export type Output = string | number | object
 export type State = string | number | object
 
-type IntervalFunction = (attempt: number) => number
+type IntervalFunction = (attempt: number, lastError?: any) => number
 type RetryIntervalOption = number | 'exponential' | IntervalFunction
 
 export interface RetryOptions {
@@ -49,11 +49,11 @@ const EXPONENTIAL_BACKOFF: IntervalFunction = (attempt) => {
 	return Math.max(1000 * Math.pow(2, attempt), TEN_MINUTES)
 }
 
-export function getInterval(opts: RetryIntervalOption, attempt: number): number {
+export function getInterval(opts: RetryIntervalOption, attempt: number, error: any): number {
 	if (typeof opts === 'number') {
 		return opts
 	} else if (typeof opts === 'function') {
-		return opts(attempt)
+		return opts(attempt, error)
 	} else if (typeof opts === 'string' && opts === 'exponential') {
 		return EXPONENTIAL_BACKOFF(attempt)
 	} else {
