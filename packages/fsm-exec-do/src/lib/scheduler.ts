@@ -98,7 +98,8 @@ export class DO_Scheduler implements EffectsScheduler<State, Input> {
 			const invocation = info.effect as ActionInvocation
 			const action = this.executor?.fsm.actions?.[invocation.actionId]
 			if (action) {
-				const orPromise = action(invocation.argument)
+				const fn = typeof action === 'function' ? action : action.action
+				const orPromise = fn(invocation.argument)
 				if (isPromiseLike<Input | void>(orPromise)) {
 					orPromise.then((result) => {
 						this.effects.confirmEffect(info.invocationId)
@@ -149,7 +150,7 @@ export class DO_Scheduler implements EffectsScheduler<State, Input> {
 	schedule(effects: Effects<any>): Promise<void> {
 		console.log('scheduling')
 		if (effects.timer) {
-			const timeoutEpoch = Date.now() + effects.timer.delayInMs
+			const timeoutEpoch = Date.now() + effects.timer.delay
 			this.effects.setEffect({ invocationId: 'timer', timeoutEpoch, effect: effects.timer })
 		} else {
 			this.effects.confirmEffect('timer')
@@ -157,7 +158,7 @@ export class DO_Scheduler implements EffectsScheduler<State, Input> {
 
 		for (const invocation of effects.invocations || []) {
 			console.log({ invocation })
-			const timeout = invocation.timeoutInMs || 60000
+			const timeout = invocation.timeout || 60000
 			const timeoutEpoch = Date.now() + timeout
 			const invocationId = crypto.randomUUID()
 			this.effects.setEffect({ invocationId, timeoutEpoch, effect: invocation })
@@ -179,7 +180,7 @@ export class DO_Scheduler implements EffectsScheduler<State, Input> {
 				const abortController = this.runningPromises.get(info.invocationId)
 				abortController?.abort('Timeout.')
 				const invocation = info.effect as ActionInvocation
-				const timeout = invocation.timeoutInMs || 60000
+				const timeout = invocation.timeout || 60000
 				const timeoutEpoch = Date.now() + timeout
 				info.timeoutEpoch = timeoutEpoch
 				this.effects.setEffect(info)

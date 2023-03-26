@@ -31,7 +31,7 @@ const handleStart = (state: State, _input: Input): Results<State, Input, Output>
 		return {
 			state: { mode: 'RUNNING', powerLevel, timer },
 			invocations: [{ actionId: 'start' }],
-			timer: { delayInMs: 1000, input: 'tick' },
+			timer: { delay: 1000, input: 'tick' },
 		}
 	} else {
 		return { state, output: 'BEEP' }
@@ -89,10 +89,10 @@ const handleRunning = (state: State, input: Input): Results<State, Input, Output
 			const newState = { mode: 'STOPPED', timer: 0, powerLevel: state.powerLevel } as const
 			return { state: newState, invocations: [{ actionId: 'stop' }], output: 'CHIME' }
 		} else {
-			return { state: { ...state, timer }, timer: { delayInMs: 1000, input: 'tick' } }
+			return { state: { ...state, timer }, timer: { delay: 1000, input: 'tick' } }
 		}
 	} else {
-		return { state, timer: { delayInMs: 1000, input: 'tick' }, output: 'BEEP' }
+		return { state, timer: { delay: 1000, input: 'tick' }, output: 'BEEP' }
 	}
 }
 

@@ -1,5 +1,20 @@
 # @microlabs/fsm-exec
 
+## 0.3.0
+
+### Minor Changes
+
+- Made small changes in the Finite State Machine definition:
+
+  - timeoutInMs and delayInMs are now timeout and delay respectively. Everything is always in milliseconds.
+  - onError(error) has been split into onExecutionError and onInvocationError and now includes all the input that led to the error.
+  - Added retry instructions to both Action definitions and Invocations. Invocation instructions will always take priority over the options specified in the ActionDefinition.
+
+### Patch Changes
+
+- Updated dependencies
+  - @microlabs/fsm@0.2.0
+
 ## 0.2.1
 
 ### Patch Changes

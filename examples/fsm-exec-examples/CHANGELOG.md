@@ -1,5 +1,14 @@
 # @microlabs/fsm-exec-examples
 
+## 0.1.3
+
+### Patch Changes
+
+- Updated dependencies
+  - @microlabs/fsm-examples@0.3.0
+  - @microlabs/fsm-exec@0.3.0
+  - @microlabs/fsm@0.2.0
+
 ## 0.1.2
 
 ### Patch Changes
